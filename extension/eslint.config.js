@@ -6,7 +6,7 @@ import autoImports from "./.wxt/eslint-auto-imports.mjs";
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   autoImports,
-  { files: ["**/*.{js,mjs,cjs,ts}"] },
+  { files: ["**/*.{js,jsx,mjs,cjs,ts,tsx}"] },
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,

@@ -1,19 +1,24 @@
 import { createSignal } from 'solid-js';
-import solidLogo from '@/assets/solid.svg';
-import wxtLogo from '/wxt.svg';
+// import solidLogo from '@/assets/solid.svg';
+// import wxtLogo from '/wxt.svg';
 import './App.css';
+import { sendMessage } from '@/utils/messaging';
 
 function App() {
   const [count, setCount] = createSignal(0);
+
+  createEffect(async () => {
+    await sendMessage('setCount', count());
+  });
 
   return (
     <>
       <div>
         <a href="https://wxt.dev" target="_blank">
-          <img src={wxtLogo} class="logo" alt="WXT logo" />
+          {/* <img src={wxtLogo} class="logo" alt="WXT logo" /> */}
         </a>
         <a href="https://solidjs.com" target="_blank">
-          <img src={solidLogo} class="logo solid" alt="Solid logo" />
+          {/* <img src={solidLogo} class="logo solid" alt="Solid logo" /> */}
         </a>
       </div>
       <h1>WXT + Solid</h1>

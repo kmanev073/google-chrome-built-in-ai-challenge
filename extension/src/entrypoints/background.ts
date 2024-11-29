@@ -1,18 +1,24 @@
-import { defineBackground } from 'wxt/sandbox';
+import { onMessage } from "@/utils/messaging";
+import { defineBackground } from "wxt/sandbox";
 
 let blacklist: Set<string>;
 let whitelist: Set<string>;
-const checkedWebsites: Record<string, 'safe' | 'dangerous'> = {};
+const checkedWebsites: Record<string, "safe" | "dangerous"> = {};
 
 export default defineBackground(() => {
   loadLists()
     .then(() => {
       subscribeToOnTabLoaded();
       subscribeToOnTabSelected();
-      console.log('Anti-Phishing extension loaded successfully!');
+
+      onMessage("setCount", ({ data }) => {
+        console.log(data);
+      });
+
+      console.log("Anti-Phishing extension loaded successfully!");
     })
     .catch((error) => {
-      console.error('Failed to load Anti-Phishing extension!', error);
+      console.error("Failed to load Anti-Phishing extension!", error);
     });
 });
 
@@ -23,17 +29,17 @@ async function fetchJSON(url: string) {
 
 async function loadLists() {
   try {
-    const blacklistData = await fetchJSON('/blacklist-phishfort.json');
+    const blacklistData = await fetchJSON("/blacklist-phishfort.json");
     blacklist = new Set(blacklistData);
   } catch (cause) {
-    throw new Error('Error while loading blacklist data!', { cause });
+    throw new Error("Error while loading blacklist data!", { cause });
   }
   console.log(`Successfully loaded ${blacklist.size} blacklisted domains.`);
 
   const whitelistFiles = [
-    '/top-1m-builtwith.json',
-    '/top-1m-cisco.json',
-    '/top-1m-tranco.json'
+    "/top-1m-builtwith.json",
+    "/top-1m-cisco.json",
+    "/top-1m-tranco.json",
   ];
 
   try {
@@ -42,7 +48,7 @@ async function loadLists() {
     );
     whitelist = new Set([...builtwithData, ...ciscoData, ...trancoData]);
   } catch (cause) {
-    throw new Error('Error while loading whitelist data!', { cause });
+    throw new Error("Error while loading whitelist data!", { cause });
   }
   console.log(`Successfully loaded ${whitelist.size} whitelisted domains.`);
 }
@@ -61,15 +67,15 @@ function subscribeToOnTabSelected() {
 }
 
 function checkTab(tab: chrome.tabs.Tab) {
-  if (tab.status !== 'complete' || !tab.active) {
+  if (tab.status !== "complete" || !tab.active) {
     return false;
   }
 
-  if (tab.url && tab.url.startsWith('https://')) {
+  if (tab.url && tab.url.startsWith("https://")) {
     return true;
   }
 
-  if (tab.url && tab.url.startsWith('http://')) {
+  if (tab.url && tab.url.startsWith("http://")) {
     return true;
   }
 
@@ -81,11 +87,11 @@ function getHostnameFromTabUrl(tabUrl: string) {
   try {
     url = new URL(tabUrl);
   } catch (cause) {
-    throw new Error('Failed to parse tab url!', { cause });
+    throw new Error("Failed to parse tab url!", { cause });
   }
 
-  if (url.hostname && (url.protocol === 'http:' || url.protocol === 'https:')) {
-    return url.hostname.startsWith('www.')
+  if (url.hostname && (url.protocol === "http:" || url.protocol === "https:")) {
+    return url.hostname.startsWith("www.")
       ? url.hostname.substring(4)
       : url.hostname;
   }
@@ -130,7 +136,7 @@ async function takeScreenshot(windowId: number): Promise<string> {
 
     try {
       const screenshot = await browser.tabs.captureVisibleTab(windowId, {
-        format: 'png'
+        format: "png",
       });
       if (screenshot) {
         return screenshot;
@@ -141,7 +147,7 @@ async function takeScreenshot(windowId: number): Promise<string> {
     }
   }
 
-  throw new Error('Failed to capture screenshot after multiple attempts!');
+  throw new Error("Failed to capture screenshot after multiple attempts!");
 }
 
 async function antiPhishingPipeline(tab: chrome.tabs.Tab) {
@@ -152,13 +158,13 @@ async function antiPhishingPipeline(tab: chrome.tabs.Tab) {
   const urlHostname = getHostnameFromTabUrl(tab.url);
 
   if (checkBlacklist(urlHostname)) {
-    console.log('DANGER!');
+    console.log("DANGER!");
     return;
   }
 
-  if (checkedWebsites[tab.url] === 'safe' || checkWhitelist(urlHostname)) {
+  if (checkedWebsites[tab.url] === "safe" || checkWhitelist(urlHostname)) {
     //notifyPopup(tab.url, 'safe');
-    console.log('OK!');
+    console.log("OK!");
     return;
   }
 
