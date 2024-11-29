@@ -1,2 +1,5 @@
-# google-chrome-built-in-ai-challenge
-My Sumission for Google Chrome Built-in AI Challenge
+# Anti-Phishing Browser Extension
+My Submission for Google Chrome Built-in AI Challenge
+
+## Steps to run:
+1. 

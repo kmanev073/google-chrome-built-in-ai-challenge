@@ -1,0 +1,28 @@
+{
+  "name": "anti-phishing-browser-extension",
+  "description": "My Submission for Google Chrome Built-in AI Challenge",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/chrome": "^0.0.280",
+    "@wxt-dev/module-solid": "^1.1.2",
+    "eslint": "^9.15.0",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.16.0",
+    "wxt": "^0.19.13"
+  }
+}
