@@ -1,6 +1,6 @@
 # WXT + SolidJS = Extension
 
-## Build & run in development mode:
+## Build & Run in Development Mode:
 
 1. Run `bun install`
 2. Run `bun run postinstall`
