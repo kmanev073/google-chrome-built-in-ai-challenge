@@ -13,6 +13,7 @@ function App() {
 
   return (
     <>
+      <h1 class="text-3xl font-bold text-red-600">Hello world!</h1>
       <div>
         <a href="https://wxt.dev" target="_blank">
           {/* <img src={wxtLogo} class="logo" alt="WXT logo" /> */}
