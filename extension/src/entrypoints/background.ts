@@ -1,20 +1,17 @@
+import { UrlStatus } from '@/utils/common-types';
 import { onMessage } from '@/utils/messaging';
 import { defineBackground } from 'wxt/sandbox';
 
 let blacklist: Set<string>;
 let whitelist: Set<string>;
-const checkedWebsites: Record<string, 'safe' | 'suspicious' | 'dangerous'> = {};
+const checkedUrls: Record<string, UrlStatus> = {};
 
 export default defineBackground(() => {
   loadLists()
     .then(() => {
       subscribeToOnTabLoaded();
       subscribeToOnTabSelected();
-
-      onMessage('setCount', ({ data }) => {
-        console.log(data);
-      });
-
+      subscribeToMessages();
       console.log('Anti-Phishing extension loaded successfully!');
     })
     .catch((error) => {
@@ -66,6 +63,12 @@ function subscribeToOnTabSelected() {
   });
 }
 
+function subscribeToMessages() {
+  onMessage('getPageInfo', ({ data }) => {
+    console.log(data);
+  });
+}
+
 function checkTab(tab: chrome.tabs.Tab) {
   if (tab.status !== 'complete' || !tab.active) {
     return false;
@@ -114,17 +117,17 @@ function checkBlacklist(urlHostname: string) {
 }
 
 function checkWhitelist(urlHostname: string) {
-  let legit = false;
+  let safe = false;
   const startTime = performance.now();
 
   if (whitelist.has(urlHostname)) {
-    legit = true;
+    safe = true;
   }
 
   const totalTime = Math.floor(performance.now() - startTime);
   console.log(`White list check done in ${totalTime} ms.`);
 
-  return legit;
+  return safe;
 }
 
 async function takeScreenshot(windowId: number) {
@@ -162,9 +165,6 @@ async function checkPhishingAi(
   screenshot: string,
   languages: string[]
 ) {
-  console.log(screenshot);
-  console.log(import.meta.env.WXT_BACKEND_URL);
-
   let phishing = false;
   const startTime = performance.now();
 
@@ -179,6 +179,10 @@ async function checkPhishingAi(
       image_base64: screenshot
     })
   });
+
+  const totalTime = Math.floor(performance.now() - startTime);
+  console.log(`AI check done in ${totalTime} ms.`);
+
   const { isLoginPage, isPhishing, reasoning, websiteDomain, error } =
     await response.json();
 
@@ -203,9 +207,6 @@ async function checkPhishingAi(
     ) {
       phishing = true;
     }
-
-    const totalTime = Math.floor(performance.now() - startTime);
-    console.log(`AI check done in ${totalTime} ms.`);
   }
 
   return {
@@ -219,18 +220,27 @@ async function antiPhishingPipeline(tab: chrome.tabs.Tab) {
     return;
   }
 
-  const urlHostname = getHostnameFromTabUrl(tab.url);
-
-  if (checkedWebsites[tab.url] === 'dangerous' || checkBlacklist(urlHostname)) {
-    checkedWebsites[tab.url] = 'dangerous';
-    console.log('DANGER!');
+  if (checkedUrls[tab.url] === 'dangerous') {
+    redirectToWarningPage();
     return;
   }
 
-  if (checkedWebsites[tab.url] === 'safe' || checkWhitelist(urlHostname)) {
-    checkedWebsites[tab.url] = 'safe';
-    //notifyPopup(tab.url, 'safe');
-    console.log('OK!');
+  if (
+    checkedUrls[tab.url] === 'safe' ||
+    checkedUrls[tab.url] === 'suspicious'
+  ) {
+    return;
+  }
+
+  const urlHostname = getHostnameFromTabUrl(tab.url);
+
+  if (checkBlacklist(urlHostname)) {
+    onDangerousUrl(tab.url);
+    return;
+  }
+
+  if (checkWhitelist(urlHostname)) {
+    onSafeUrl(tab.url);
     return;
   }
 
@@ -244,15 +254,36 @@ async function antiPhishingPipeline(tab: chrome.tabs.Tab) {
       'data:image/png;base64,'.length
     );
 
-    const result = await checkPhishingAi(
+    const { phishing: isPhishing } = await checkPhishingAi(
       urlHostname,
       tab.url,
       screenshotCorrected,
       pageLanguages
     );
 
-    console.log(result);
+    if (isPhishing) {
+      onDangerousUrl(tab.url);
+    } else {
+      onSuspiciousUrl(tab.url);
+    }
   } catch (e) {
     console.error('Error while analyzing page!', e);
   }
+}
+
+function onDangerousUrl(url: string) {
+  checkedUrls[url] = 'dangerous';
+  redirectToWarningPage();
+}
+
+function redirectToWarningPage() {
+  console.log('redirect!');
+}
+
+function onSafeUrl(url: string) {
+  checkedUrls[url] = 'safe';
+}
+
+function onSuspiciousUrl(url: string) {
+  checkedUrls[url] = 'suspicious';
 }

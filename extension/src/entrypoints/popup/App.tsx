@@ -1,44 +1,113 @@
 import { createSignal } from 'solid-js';
-// import solidLogo from '@/assets/solid.svg';
-// import wxtLogo from '/wxt.svg';
-import './App.css';
 import { sendMessage } from '@/utils/messaging';
 import { Button } from '@/components/ui/button';
+import { UrlStatus } from '@/utils/common-types';
 
 function App() {
-  const [count, setCount] = createSignal(0);
+  const [urlStatus, setUrlStatus] = createSignal<UrlStatus>('unknown');
+  const [urlsScanned, setUrlsScanned] = createSignal(0);
+  const [threatsBlocked, setThreatsBlocked] = createSignal(0);
 
-  createEffect(async () => {
-    await sendMessage('setCount', count());
+  onMount(async () => {
+    subscribeToMessages();
+    await getPageInfo();
   });
 
+  function subscribeToMessages() {
+    onMessage('newPageInfo', async ({ data }) => {
+      const currentUrl = await getCurrentUrl();
+      if (currentUrl === data.url) {
+        setPopupInfo(data.info);
+      }
+    });
+  }
+
+  async function getPageInfo() {
+    const currentUrl = await getCurrentUrl();
+    if (currentUrl) {
+      const response = await sendMessage('getPageInfo', currentUrl);
+      setPopupInfo(response);
+    }
+  }
+
+  async function getCurrentUrl() {
+    const [tab] = await browser.tabs.query({
+      active: true,
+      lastFocusedWindow: true
+    });
+    if (tab && tab.url) {
+      const urlParams = new URLSearchParams(new URL(tab.url).search);
+      return urlParams.get('url') ?? tab.url;
+    }
+    return '';
+  }
+
+  function setPopupInfo(info: PopupInfo) {
+    setUrlStatus(info.urlStatus);
+    setUrlsScanned(info.urlsScanned);
+    setThreatsBlocked(info.threatsBlocked);
+  }
+
   return (
-    <>
-      <h1 class="text-3xl font-bold text-red-600">Hello world!</h1>
-      <div>
-        <a href="https://wxt.dev" target="_blank">
-          {/* <img src={wxtLogo} class="logo" alt="WXT logo" /> */}
-        </a>
-        <a href="https://solidjs.com" target="_blank">
-          {/* <img src={solidLogo} class="logo solid" alt="Solid logo" /> */}
-        </a>
+    <div
+      class="grid h-96 grid-cols-1 content-around gap-4"
+      classList={{
+        'bg-green-500': urlStatus() === 'safe',
+        'bg-yellow-500': urlStatus() === 'suspicious',
+        'bg-red-500': urlStatus() === 'dangerous',
+        'bg-gray-300': urlStatus() === 'unknown',
+        'text-white': urlStatus() === 'safe' || urlStatus() === 'dangerous'
+      }}
+    >
+      <div class="text-center">
+        <Switch>
+          <Match when={urlStatus() === 'unknown'}>
+            <div class="flex justify-center drop-shadow-md">
+              {/* <Face class="mr-2 h-20 w-20" /> */}
+            </div>
+            <p class="text-lg drop-shadow-md">Checking website...</p>
+          </Match>
+          <Match when={urlStatus() === 'dangerous'}>
+            <div class="flex justify-center drop-shadow-md">
+              {/* <Cross2 class="mr-2 h-20 w-20" /> */}
+            </div>
+            <p class="text-lg drop-shadow-md">Phishing detected, stay away!</p>
+          </Match>
+          <Match when={urlStatus() === 'safe'}>
+            <div class="flex justify-center drop-shadow-md">
+              {/* <Check class="mr-2 h-20 w-20" /> */}
+            </div>
+            <p class="text-lg drop-shadow-md">This website is safe!</p>
+          </Match>
+          <Match when={urlStatus() === 'suspicious'}>
+            <div class="flex justify-center drop-shadow-md">
+              {/* <ExclamationTriangle class="mr-2 h-20 w-20" /> */}
+            </div>
+            <p class="text-lg drop-shadow-md">
+              Suspicious website, be careful!
+            </p>
+          </Match>
+        </Switch>
       </div>
-      <h1>WXT + Solid</h1>
-      <div class="card">
-        <Button
-          variant="outline"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count()}
-        </Button>
-        <p>
-          Edit <code>popup/App.tsx</code> and save to test HMR
-        </p>
+      <div class="flex">
+        <div class="m-auto text-center">
+          <p class="text-lg drop-shadow-md">{urlsScanned()} websites scanned</p>
+          <p class="text-lg drop-shadow-md">
+            {threatsBlocked()} threats blocked
+          </p>
+        </div>
       </div>
-      <p class="read-the-docs">
-        Click on the WXT and Solid logos to learn more
-      </p>
-    </>
+      <div class="space-y-4">
+        <div class="flex content-between justify-center space-x-5 drop-shadow-md">
+          <Button>Get help</Button>
+          <Button>Report problem</Button>
+        </div>
+        <div class="flex content-between">
+          <p class="ml-3 mr-auto drop-shadow-md">Anti-Phishing v0.0.1</p>
+          <p class="ml-auto mr-3 drop-shadow-md">About</p>
+        </div>
+      </div>
+    </div>
   );
 }
 
