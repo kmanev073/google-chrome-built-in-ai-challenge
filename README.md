@@ -42,3 +42,11 @@ This diagram describes the novel approach that the extension uses to detect phis
   <li>The backend uses the configured Gemini model to decide if the visited website is dangerous or not</li>
   <li>Based on the response of the backend the extension can redirect the user to a warning page if the visited website looks suspicious or let the user browse if the page is safe</li>
 </ol>
+
+## Setup Local Environment
+
+To try out the extension you will need to build it in development mode and run the backend. I have also provided 3 example phishing pages you can visit and test the approach. Please follow the instructions in the corresponding readmes:
+
+- Extension: [README.md](./extension/)
+- Backend: [README.md](./backend/README.md)
+- Examples: [README.md](<[./backend/README.md](https://github.com/kmanev073/google-chrome-built-in-ai-challenge/tree/main/examples#readme)>)
