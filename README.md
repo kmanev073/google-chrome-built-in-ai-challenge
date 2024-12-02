@@ -4,11 +4,19 @@ Innovative browser extension that uses advanced Large Language Models (LLMs) and
 
 ## How It Works
 
+The extension employs an innovative, visual-based anti-phishing approach that transcends traditional detection methods, which often rely solely on blacklist/whitelist systems or rules based on domain and source code analysis. While these conventional solutions are effective, they struggle with detecting zero-day attacks and can be easily circumvented by tactics such as using standard input fields instead of password fields, or replicating logos with CSS rather than images.
+
+This challenge inspired the development of a purely visual detection method that mimics human behavior by visually identifying websites and verifying if the URL matches before proceeding with information input. This approach excels at detecting zero-day threats and is difficult to bypass, although AI models can still make occasional errors.
+
+To combine the strengths of both methodologies, our solution integrates the visual approach's advantages with traditional blacklisting, ensuring all previously identified threats remain detectable. This hybrid method leverages built-in browser API capabilities to accurately detect the page's language and utilizes Gemini's visual recognition capabilities. To manage costs associated with frequent Gemini calls, the extension incorporates a whitelisting mechanism.
+
+The extension includes 114,399 blacklisted URLs from the Phishfort list and 2,683,642 whitelisted URLs from Tranco, Cisco, and BuiltWith. This dual approach not only conserves computational resources on user devices but also minimizes LLM call frequency, ensuring robust protection when necessary. Historically, hybrid solutions that blend various methods have proven most effective. As LLMs improve, this solution may eventually operate entirely on users’ machines, enhancing efficiency and security.
+
+## A Picture Is Worth Thousands of Words
+
 This diagram describes the novel approach that the extension uses to detect phishing attacks:
 
 ![Anti-Phishing browser extension architecture diagram](./docs/anti-phishing.svg)
-
-**Steps:**
 
 <ol start="0">
   <li>The user selects a tab or loads a new page</li>
