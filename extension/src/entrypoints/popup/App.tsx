@@ -3,6 +3,7 @@ import { createSignal } from 'solid-js';
 // import wxtLogo from '/wxt.svg';
 import './App.css';
 import { sendMessage } from '@/utils/messaging';
+import { Button } from '@/components/ui/button';
 
 function App() {
   const [count, setCount] = createSignal(0);
@@ -24,9 +25,12 @@ function App() {
       </div>
       <h1>WXT + Solid</h1>
       <div class="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count()}
-        </button>
+        <Button
+          variant="outline"
+          onClick={() => setCount((count) => count + 1)}
+        >
+          Count is {count()}
+        </Button>
         <p>
           Edit <code>popup/App.tsx</code> and save to test HMR
         </p>

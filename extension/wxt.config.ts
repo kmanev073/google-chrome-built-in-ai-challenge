@@ -1,19 +1,19 @@
-import { defineConfig } from "wxt";
+import { defineConfig } from 'wxt';
 
 export default defineConfig({
-  srcDir: "src",
-  outDir: "dist",
-  publicDir: "static",
-  modules: ["@wxt-dev/auto-icons", "@wxt-dev/module-solid"],
+  srcDir: 'src',
+  outDir: 'dist',
+  publicDir: 'static',
+  modules: ['@wxt-dev/auto-icons', '@wxt-dev/module-solid'],
   imports: {
     eslintrc: {
-      enabled: 9,
-    },
+      enabled: 9
+    }
   },
-  extensionApi: "chrome",
+  extensionApi: 'chrome',
   manifest: {
-    name: "Anti-Phishing",
-    permissions: ["tabs"],
-    host_permissions: ["<all_urls>"],
-  },
+    name: 'Anti-Phishing',
+    permissions: ['tabs'],
+    host_permissions: ['<all_urls>']
+  }
 });
