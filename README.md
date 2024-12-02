@@ -48,5 +48,5 @@ This diagram describes the novel approach that the extension uses to detect phis
 To try out the extension you will need to build it in development mode and run the backend. I have also provided 3 example phishing pages you can visit and test the approach. Please follow the instructions in the corresponding readmes:
 
 - Extension: [README.md](./extension/)
-- Backend: [README.md](./backend/README.md)
-- Examples: [README.md](<[./backend/README.md](https://github.com/kmanev073/google-chrome-built-in-ai-challenge/tree/main/examples#readme)>)
+- Backend: [README.md](./backend/)
+- Phishing Examples: [README.md](./backend/)
