@@ -303,7 +303,7 @@ async function onDangerousUrl(url: string, tabId: number) {
   await increaseThreatsBlocked();
   await sendNewPageInfo(url);
 
-  const warningPageUrl = 'https://google.com/'; //browser.runtime.getURL('/html/warning/index.html');
+  const warningPageUrl = browser.runtime.getURL('/warning.html');
   await browser.tabs.update(tabId, {
     url: `${warningPageUrl}?url=${url}`
   });

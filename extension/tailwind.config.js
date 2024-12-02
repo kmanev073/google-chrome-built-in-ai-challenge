@@ -7,6 +7,7 @@ export default {
 
   content: [
     'src/entrypoints/popup/**/*.{html,js,jxs,ts,tsx}',
+    'src/entrypoints/warning/**/*.{html,js,jxs,ts,tsx}',
     'src/components/**/*.{html,js,jxs,ts,tsx}'
   ],
   theme: {
