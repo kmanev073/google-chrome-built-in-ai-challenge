@@ -1,6 +1,6 @@
 # Anti-Phishing Browser Extension
 
-Innovative browser extension that uses advanced Large Language Models (LLMs) and visual recognition to protect users from phishing attacks. By dynamically identifying sites that mimic legitimate pages, we offer a robust layer of security beyond traditional methods. Designed with privacy and scalability in mind. Join us in making the internet safer, one click at a time!
+Innovative browser extension that uses advanced Large Language Models (LLMs) and visual recognition to protect users from phishing attacks. By dynamically identifying sites that mimic legitimate pages, I offer a robust layer of security beyond traditional methods. Designed with privacy and scalability in mind. Join us in making the internet safer, one click at a time!
 
 ## How It Works
 
@@ -8,7 +8,7 @@ The extension employs an innovative, visual-based anti-phishing approach that tr
 
 This challenge inspired the development of a purely visual detection method that mimics human behavior by visually identifying websites and verifying if the URL matches before proceeding with information input. This approach excels at detecting zero-day threats and is difficult to bypass, although AI models can still make occasional errors.
 
-To combine the strengths of both methodologies, our solution integrates the visual approach's advantages with traditional blacklisting, ensuring all previously identified threats remain detectable. This hybrid method leverages built-in browser API capabilities to accurately detect the page's language and utilizes Gemini's visual recognition capabilities. To manage costs associated with frequent Gemini calls, the extension incorporates a whitelisting mechanism.
+To combine the strengths of both methodologies, my solution integrates the visual approach's advantages with traditional blacklisting, ensuring all previously identified threats remain detectable. This hybrid method leverages built-in browser API capabilities to accurately detect the page's language and utilizes Gemini's visual recognition capabilities. To manage costs associated with frequent Gemini calls, the extension incorporates a whitelisting mechanism.
 
 The extension includes 114,399 blacklisted URLs from the Phishfort list and 2,683,642 whitelisted URLs from Tranco, Cisco, and BuiltWith. This dual approach not only conserves computational resources on user devices but also minimizes LLM call frequency, ensuring robust protection when necessary. Historically, hybrid solutions that blend various methods have proven most effective. As LLMs improve, this solution may eventually operate entirely on users’ machines, enhancing efficiency and security.
 
