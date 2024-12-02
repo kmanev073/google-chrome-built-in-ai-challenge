@@ -4,7 +4,7 @@ Innovative browser extension that uses advanced Large Language Models (LLMs) and
 
 ## How It Works
 
-This diagram (larger image: [anti-phishing.svg](./docs/anti-phishing.svg)) describes the novel approach that the extension uses to detect phishing attacks:
+This diagram describes the novel approach that the extension uses to detect phishing attacks:
 
 ![Anti-Phishing browser extension architecture diagram](./docs/anti-phishing.svg)
 
