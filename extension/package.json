@@ -16,6 +16,7 @@
   "dependencies": {
     "@kobalte/core": "^0.13.7",
     "@webext-core/messaging": "^2.1.0",
+    "@wxt-dev/storage": "^1.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "solid-js": "^1.9.3",
