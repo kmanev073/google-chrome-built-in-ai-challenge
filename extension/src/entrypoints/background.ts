@@ -130,6 +130,7 @@ function checkWhitelist(urlHostname: string) {
 async function takeScreenshot(windowId: number) {
   const maxAttempts = 3;
   const delayMs = 500;
+  let cause: unknown;
 
   for (let attempts = 0; attempts < maxAttempts; attempts++) {
     await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -142,16 +143,75 @@ async function takeScreenshot(windowId: number) {
         return screenshot;
       }
     } catch (e) {
-      /* empty */
-      console.log(e);
+      cause = e;
     }
   }
 
-  throw new Error('Failed to capture screenshot after multiple attempts!');
+  throw new Error('Failed to capture screenshot after multiple attempts!', {
+    cause
+  });
 }
 
 function getPageLanguages(tabId: number) {
   return sendMessage('getPageLanguages', undefined, tabId);
+}
+
+async function checkPhishingAi(
+  urlHostname: string,
+  fullUrl: string,
+  screenshot: string,
+  languages: string[]
+) {
+  console.log(screenshot);
+  console.log(import.meta.env.WXT_BACKEND_URL);
+
+  let phishing = false;
+  const startTime = performance.now();
+
+  const response = await fetch(import.meta.env.WXT_BACKEND_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      url: fullUrl,
+      languages,
+      image_base64: screenshot
+    })
+  });
+  const { isLoginPage, isPhishing, reasoning, websiteDomain, error } =
+    await response.json();
+
+  console.log('AI model isLoginPage:', isLoginPage);
+  console.log('AI model isPhishing:', isPhishing);
+  console.log('AI model reasoning:', reasoning);
+  console.log('AI model websiteDomain:', websiteDomain);
+  console.log('AI model error:', error);
+
+  if (error) {
+    return {
+      phishing: false,
+      error: true
+    };
+  } else {
+    if (
+      (isPhishing > 0.5 && isLoginPage > 0.5) ||
+      (websiteDomain &&
+        isPhishing <= 0.5 &&
+        isLoginPage > 0.5 &&
+        !urlHostname.endsWith(websiteDomain))
+    ) {
+      phishing = true;
+    }
+
+    const totalTime = Math.floor(performance.now() - startTime);
+    console.log(`AI check done in ${totalTime} ms.`);
+  }
+
+  return {
+    phishing,
+    error: false
+  };
 }
 
 async function antiPhishingPipeline(tab: chrome.tabs.Tab) {
@@ -174,11 +234,25 @@ async function antiPhishingPipeline(tab: chrome.tabs.Tab) {
     return;
   }
 
-  const [screenshot, pageLanguages] = await Promise.all([
-    takeScreenshot(tab.windowId),
-    getPageLanguages(tab.id)
-  ]);
+  try {
+    const [screenshot, pageLanguages] = await Promise.all([
+      takeScreenshot(tab.windowId),
+      getPageLanguages(tab.id)
+    ]);
 
-  console.log(screenshot);
-  console.log(pageLanguages);
+    const screenshotCorrected = screenshot.slice(
+      'data:image/png;base64,'.length
+    );
+
+    const result = await checkPhishingAi(
+      urlHostname,
+      tab.url,
+      screenshotCorrected,
+      pageLanguages
+    );
+
+    console.log(result);
+  } catch (e) {
+    console.error('Error while analyzing page!', e);
+  }
 }

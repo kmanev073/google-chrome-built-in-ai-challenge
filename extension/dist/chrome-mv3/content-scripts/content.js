@@ -1734,7 +1734,7 @@ var content = (function () {
 	  error: (...args) => print$1(console.error, ...args)
 	};
 
-	const __vite_import_meta_env__ = {"BASE_URL": "/", "BROWSER": "chrome", "CHROME": true, "COMMAND": "serve", "DEV": true, "EDGE": false, "ENTRYPOINT": "content", "FIREFOX": false, "MANIFEST_VERSION": 3, "MODE": "development", "OPERA": false, "PROD": false, "SAFARI": false, "SSR": false, "VITE_CJS_IGNORE_WARNING": "true"};
+	const __vite_import_meta_env__ = {"BASE_URL": "/", "BROWSER": "chrome", "CHROME": true, "COMMAND": "serve", "DEV": true, "EDGE": false, "ENTRYPOINT": "content", "FIREFOX": false, "MANIFEST_VERSION": 3, "MODE": "development", "OPERA": false, "PROD": false, "SAFARI": false, "SSR": false, "VITE_CJS_IGNORE_WARNING": "true", "WXT_BACKEND_URL": "http://localhost:8000/inference"};
 	class WxtLocationChangeEvent extends Event {
 	  constructor(newUrl, oldUrl) {
 	    super(WxtLocationChangeEvent.EVENT_NAME, {});
