@@ -64,9 +64,25 @@ function subscribeToOnTabSelected() {
 }
 
 function subscribeToMessages() {
-  onMessage('getPageInfo', ({ data }) => {
-    console.log(data);
-  });
+  onMessage('getPageInfo', async ({ data }) => getPageInfo(data));
+}
+
+async function getPageInfo(url: string) {
+  const urlStatus = checkedUrls[url]
+    ? checkedUrls[url]
+    : url.startsWith('https://') || url.startsWith('http://')
+    ? 'unknown'
+    : 'safe';
+
+  const urlsScanned = await getUrlsScanned();
+  const threatsBlocked = await getThreatsBlocked();
+
+  return {
+    url,
+    urlStatus,
+    urlsScanned,
+    threatsBlocked
+  };
 }
 
 function checkTab(tab: chrome.tabs.Tab) {
@@ -102,6 +118,19 @@ function getHostnameFromTabUrl(tabUrl: string) {
   throw new Error(`Protocol ${url.protocol} is not supported!`);
 }
 
+async function getSelectedTab(windowId: number) {
+  try {
+    const queryResult = await browser.tabs.query({
+      active: true,
+      lastFocusedWindow: true,
+      windowId
+    });
+    return queryResult[0];
+  } catch (cause) {
+    throw new Error('Failed to get currently selected tab!', { cause });
+  }
+}
+
 function checkBlacklist(urlHostname: string) {
   let phishing = false;
   const startTime = performance.now();
@@ -130,7 +159,7 @@ function checkWhitelist(urlHostname: string) {
   return safe;
 }
 
-async function takeScreenshot(windowId: number) {
+async function takeScreenshot(initialUrl: string, windowId: number) {
   const maxAttempts = 3;
   const delayMs = 500;
   let cause: unknown;
@@ -138,20 +167,23 @@ async function takeScreenshot(windowId: number) {
   for (let attempts = 0; attempts < maxAttempts; attempts++) {
     await new Promise((resolve) => setTimeout(resolve, delayMs));
 
-    try {
-      const screenshot = await browser.tabs.captureVisibleTab(windowId, {
-        format: 'png'
-      });
-      if (screenshot) {
-        return screenshot;
+    const selectedTab = await getSelectedTab(windowId);
+    if (selectedTab.url === initialUrl) {
+      try {
+        const screenshot = await browser.tabs.captureVisibleTab(windowId, {
+          format: 'png'
+        });
+        if (screenshot) {
+          return screenshot;
+        }
+      } catch (e) {
+        cause = e;
       }
-    } catch (e) {
-      cause = e;
     }
   }
 
   throw new Error('Failed to capture screenshot after multiple attempts!', {
-    cause
+    cause: cause ?? 'Selected tab was changed!'
   });
 }
 
@@ -220,33 +252,28 @@ async function antiPhishingPipeline(tab: chrome.tabs.Tab) {
     return;
   }
 
-  if (checkedUrls[tab.url] === 'dangerous') {
-    redirectToWarningPage();
-    return;
-  }
-
-  if (
-    checkedUrls[tab.url] === 'safe' ||
-    checkedUrls[tab.url] === 'suspicious'
-  ) {
-    return;
-  }
+  await increaseUrlsScanned();
 
   const urlHostname = getHostnameFromTabUrl(tab.url);
 
-  if (checkBlacklist(urlHostname)) {
-    onDangerousUrl(tab.url);
+  if (checkedUrls[tab.url] === 'dangerous' || checkBlacklist(urlHostname)) {
+    await onDangerousUrl(tab.url, tab.id);
     return;
   }
 
-  if (checkWhitelist(urlHostname)) {
-    onSafeUrl(tab.url);
+  if (checkedUrls[tab.url] === 'safe' || checkWhitelist(urlHostname)) {
+    await onSafeUrl(tab.url);
+    return;
+  }
+
+  if (checkedUrls[tab.url] === 'suspicious') {
+    await onSuspiciousUrl(tab.url);
     return;
   }
 
   try {
     const [screenshot, pageLanguages] = await Promise.all([
-      takeScreenshot(tab.windowId),
+      takeScreenshot(tab.url, tab.windowId),
       getPageLanguages(tab.id)
     ]);
 
@@ -262,28 +289,59 @@ async function antiPhishingPipeline(tab: chrome.tabs.Tab) {
     );
 
     if (isPhishing) {
-      onDangerousUrl(tab.url);
+      await onDangerousUrl(tab.url, tab.id);
     } else {
-      onSuspiciousUrl(tab.url);
+      await onSuspiciousUrl(tab.url);
     }
   } catch (e) {
     console.error('Error while analyzing page!', e);
   }
 }
 
-function onDangerousUrl(url: string) {
+async function onDangerousUrl(url: string, tabId: number) {
   checkedUrls[url] = 'dangerous';
-  redirectToWarningPage();
+  await increaseThreatsBlocked();
+  await sendNewPageInfo(url);
+
+  const warningPageUrl = 'https://google.com/'; //browser.runtime.getURL('/html/warning/index.html');
+  await browser.tabs.update(tabId, {
+    url: `${warningPageUrl}?url=${url}`
+  });
+  console.log('Redirected to warning page!');
 }
 
-function redirectToWarningPage() {
-  console.log('redirect!');
-}
-
-function onSafeUrl(url: string) {
+async function onSafeUrl(url: string) {
   checkedUrls[url] = 'safe';
+  await sendNewPageInfo(url);
 }
 
-function onSuspiciousUrl(url: string) {
+async function onSuspiciousUrl(url: string) {
   checkedUrls[url] = 'suspicious';
+  await sendNewPageInfo(url);
+}
+
+async function sendNewPageInfo(url: string) {
+  try {
+    await sendMessage('newPageInfo', await getPageInfo(url));
+  } catch {
+    /* empty */
+  }
+}
+
+async function getUrlsScanned() {
+  return (await storage.getItem<number>('local:urlsScanned')) ?? 0;
+}
+
+async function getThreatsBlocked() {
+  return (await storage.getItem<number>('local:threatsBlocked')) ?? 0;
+}
+
+async function increaseUrlsScanned() {
+  const urlsScanned = await getUrlsScanned();
+  storage.setItem<number>('local:urlsScanned', urlsScanned + 1);
+}
+
+async function increaseThreatsBlocked() {
+  const threatsBlocked = await getThreatsBlocked();
+  storage.setItem<number>('local:threatsBlocked', threatsBlocked + 1);
 }

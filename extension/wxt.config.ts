@@ -13,7 +13,7 @@ export default defineConfig({
   extensionApi: 'chrome',
   manifest: {
     name: 'Anti-Phishing',
-    permissions: ['tabs'],
+    permissions: ['tabs', 'storage'],
     host_permissions: ['<all_urls>']
   }
 });

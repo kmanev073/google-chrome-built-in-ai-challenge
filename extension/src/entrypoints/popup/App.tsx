@@ -17,7 +17,7 @@ function App() {
     onMessage('newPageInfo', async ({ data }) => {
       const currentUrl = await getCurrentUrl();
       if (currentUrl === data.url) {
-        setPopupInfo(data.info);
+        setPopupInfo(data);
       }
     });
   }
