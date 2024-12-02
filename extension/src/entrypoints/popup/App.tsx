@@ -2,6 +2,12 @@ import { createSignal } from 'solid-js';
 import { sendMessage } from '@/utils/messaging';
 import { Button } from '@/components/ui/button';
 import { UrlStatus } from '@/utils/common-types';
+import {
+  AiOutlineCheck,
+  AiOutlineClose,
+  AiOutlineSmile,
+  AiOutlineWarning
+} from 'solid-icons/ai';
 
 function App() {
   const [urlStatus, setUrlStatus] = createSignal<UrlStatus>('unknown');
@@ -63,25 +69,25 @@ function App() {
         <Switch>
           <Match when={urlStatus() === 'unknown'}>
             <div class="flex justify-center drop-shadow-md">
-              {/* <Face class="mr-2 h-20 w-20" /> */}
+              <AiOutlineSmile class="mr-2 h-20 w-20" />
             </div>
             <p class="text-lg drop-shadow-md">Checking website...</p>
           </Match>
           <Match when={urlStatus() === 'dangerous'}>
             <div class="flex justify-center drop-shadow-md">
-              {/* <Cross2 class="mr-2 h-20 w-20" /> */}
+              <AiOutlineClose class="mr-2 h-20 w-20" />
             </div>
             <p class="text-lg drop-shadow-md">Phishing detected, stay away!</p>
           </Match>
           <Match when={urlStatus() === 'safe'}>
             <div class="flex justify-center drop-shadow-md">
-              {/* <Check class="mr-2 h-20 w-20" /> */}
+              <AiOutlineCheck class="mr-2 h-20 w-20" />
             </div>
             <p class="text-lg drop-shadow-md">This website is safe!</p>
           </Match>
           <Match when={urlStatus() === 'suspicious'}>
             <div class="flex justify-center drop-shadow-md">
-              {/* <ExclamationTriangle class="mr-2 h-20 w-20" /> */}
+              <AiOutlineWarning class="mr-2 h-20 w-20" />
             </div>
             <p class="text-lg drop-shadow-md">
               Suspicious website, be careful!
