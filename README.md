@@ -53,11 +53,18 @@ This diagram describes the novel approach that the extension uses to detect phis
 
 ## FAQ
 
-1. Why do I need this, I have 2FA?
-   Unfortunately, threat actors have developed methods to circumvent two-factor authentication (2FA). While it remains a valuable additional security layer, users should not depend on it exclusively, as 2FA codes are also susceptible to phishing attacks.
-2. Who is still using passwords, we have passkeys?
-   Passkeys represent an impressive advancement in authentication technology; however, their widespread adoption remains limited. Even as users begin to embrace this innovation, a significant number of legacy systems will continue to rely on traditional authentication mechanisms.
-3. Isn't this solution really expensive, you are making constant LLM calls?
-   The short answer is no. LLM calls are only done if a website isn't found in the built-in whitelist which contains around 2.6 million urls.
-4. What about privacy, I don't want screenshots of my screen on your server?
-   This is a valid concern. In future a bring-your-own-key support will be implemented. This would allow users to use their own LLM instances.
+1. **Q:** Why do I need this, I have 2FA?
+
+   **A:** Unfortunately, threat actors have developed methods to circumvent two-factor authentication (2FA). While it remains a valuable additional security layer, users should not depend on it exclusively, as 2FA codes are also susceptible to phishing attacks.
+
+2. **Q:** Who is still using passwords, we have passkeys?
+
+   **A:** Passkeys represent an impressive advancement in authentication technology; however, their widespread adoption remains limited. Even as users begin to embrace this innovation, a significant number of legacy systems will continue to rely on traditional authentication mechanisms.
+
+3. **Q:** Isn't this solution really expensive, you are making constant LLM calls?
+
+   **A:** The short answer is no. LLM calls are only done if a website isn't found in the built-in whitelist which contains around 2.6 million urls.
+
+4. **Q:** What about privacy, I don't want screenshots of my screen on your server?
+
+   **A:** This is a valid concern. In future a bring-your-own-key support will be implemented. This would allow users to use their own LLM instances.
