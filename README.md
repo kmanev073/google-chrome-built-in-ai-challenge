@@ -2,7 +2,15 @@
 
 Innovative browser extension that uses advanced Large Language Models (LLMs) and visual recognition to protect users from phishing attacks. By dynamically identifying sites that mimic legitimate pages, I offer a robust layer of security beyond traditional methods. Designed with privacy and scalability in mind. Join us in making the internet safer, one click at a time!
 
-## How It Works
+## Setup Local Environment
+
+To try out the extension you will need to build it in development mode and run the backend. I have also provided 3 example phishing pages you can visit and test the approach. Please follow the instructions in the corresponding readmes:
+
+- Extension: [README.md](./extension/)
+- Backend: [README.md](./backend/)
+- Phishing Examples: [README.md](./backend/)
+
+## What It Does and How It Works
 
 The extension employs an innovative, visual-based anti-phishing approach that transcends traditional detection methods, which often rely solely on blacklist/whitelist systems or rules based on domain and source code analysis. While these conventional solutions are effective, they struggle with detecting zero-day attacks and can be easily circumvented by tactics such as using standard input fields instead of password fields, or replicating logos with CSS rather than images.
 
@@ -43,10 +51,13 @@ This diagram describes the novel approach that the extension uses to detect phis
   <li>Based on the response of the backend the extension can redirect the user to a warning page if the visited website looks suspicious or let the user browse if the page is safe</li>
 </ol>
 
-## Setup Local Environment
+## FAQ
 
-To try out the extension you will need to build it in development mode and run the backend. I have also provided 3 example phishing pages you can visit and test the approach. Please follow the instructions in the corresponding readmes:
-
-- Extension: [README.md](./extension/)
-- Backend: [README.md](./backend/)
-- Phishing Examples: [README.md](./backend/)
+1. Why do I need this, I have 2FA?
+   Unfortunately, threat actors have developed methods to circumvent two-factor authentication (2FA). While it remains a valuable additional security layer, users should not depend on it exclusively, as 2FA codes are also susceptible to phishing attacks.
+2. Who is still using passwords, we have passkeys?
+   Passkeys represent an impressive advancement in authentication technology; however, their widespread adoption remains limited. Even as users begin to embrace this innovation, a significant number of legacy systems will continue to rely on traditional authentication mechanisms.
+3. Isn't this solution really expensive, you are making constant LLM calls?
+   The short answer is no. LLM calls are only done if a website isn't found in the built-in whitelist which contains around 2.6 million urls.
+4. What about privacy, I don't want screenshots of my screen on your server?
+   This is a valid concern. In future a bring-your-own-key support will be implemented. This would allow users to use their own LLM instances.
